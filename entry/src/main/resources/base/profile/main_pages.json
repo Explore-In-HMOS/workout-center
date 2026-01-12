@@ -1,8 +1,5 @@
 {
   "src": [
-    "pages/Index",
-    "pages/SplashPage",
-    "pages/MainPage",
-    "pages/DetailPage"
+    "pages/SplashPage"
   ]
 }

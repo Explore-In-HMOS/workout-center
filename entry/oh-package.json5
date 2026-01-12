@@ -8,9 +8,6 @@
   "dependencies": {
     "@ohos/lottie": "^2.0.0"
   },
-  "devDependencies": {
-    "@ohos/lottie": "^2.0.0"
-  }
-
+  "devDependencies": {}
 }
 

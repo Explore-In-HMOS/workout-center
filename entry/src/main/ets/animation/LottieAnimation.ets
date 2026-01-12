@@ -1,42 +1,62 @@
-import lottie from '@ohos/lottie';
-import { AnimationItem } from '@ohos/lottie';
+import lottie from '@ohos/lottie'
+import type { AnimationItem } from '@ohos/lottie'
+
+type LottieRenderer = 'canvas'
+interface LottieOptions {
+  container: CanvasRenderingContext2D
+  renderer: LottieRenderer
+  loop: boolean
+  autoplay: boolean
+  name: string
+  path: string
+  initialSegment?: [number, number]
+}
 
 @Component
 export default struct LottieAnimation {
   @Prop politeChickyPath: string
-  @Prop to?: string
+  @Prop to: string = ''
 
-  private canvasController: CanvasRenderingContext2D = new CanvasRenderingContext2D()
-  private animationName: string = 'politeChicky'
+  private readonly canvasController: CanvasRenderingContext2D = new CanvasRenderingContext2D()
+  private readonly animationName: string = 'politeChicky'
   private animateItem: AnimationItem | null = null
 
   build() {
     Canvas(this.canvasController)
       .onReady(() => {
-        this.animateItem = lottie.loadAnimation({
+        const options: LottieOptions = {
           container: this.canvasController,
           renderer: 'canvas',
           loop: true,
           autoplay: true,
           name: this.animationName,
-          contentMode: 'Contain',
           path: this.politeChickyPath
-        })
+        }
+        const item: AnimationItem = lottie.loadAnimation(options)
+        this.animateItem = item
 
-        if (this.to) {
-          const onAnimationComplete = () => {
-            this.animateItem?.destroy()
-            this.animateItem?.removeEventListener('complete', onAnimationComplete)
+        if (this.to !== '') {
+          const onAnimationComplete: () => void = () => {
+            if (this.animateItem) {
+              this.animateItem.removeEventListener('complete', onAnimationComplete)
+              this.animateItem.destroy()
+              this.animateItem = null
+            }
           }
-          this.animateItem?.addEventListener('complete', onAnimationComplete)
+          this.animateItem.addEventListener('complete', onAnimationComplete)
         }
       })
       .onDisAppear(() => {
-        this.animateItem?.destroy()
+        if (this.animateItem) {
+          this.animateItem.destroy()
+          this.animateItem = null
+        }
       })
   }
-
   aboutToDisappear(): void {
-    this.animateItem?.destroy()
+    if (this.animateItem) {
+      this.animateItem.destroy()
+      this.animateItem = null
+    }
   }
 }

@@ -1,16 +1,24 @@
 {
   "string": [
     {
+      "name": "app_name",
+      "value": "HIIT Squat Trainer"
+    },
+    {
       "name": "module_desc",
-      "value": "module description"
+      "value": "HIIT squat workout module"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "description"
+      "value": "HIIT squat workout"
     },
     {
       "name": "EntryAbility_label",
-      "value": "label"
+      "value": "HIIT Squat"
+    },
+    {
+      "name": "index_short_title",
+      "value": "HIIT"
     },
     {
       "name": "index_title",
@@ -18,7 +26,7 @@
     },
     {
       "name": "index_subtitle",
-      "value": "Customize your workout below 👇"
+      "value": "Customize your workout"
     },
     {
       "name": "index_duration_label",
@@ -35,6 +43,18 @@
     {
       "name": "index_target_placeholder",
       "value": "e.g. 15"
+    },
+    {
+      "name": "index_seconds_label",
+      "value": "Seconds"
+    },
+    {
+      "name": "index_squats_label",
+      "value": "Squats"
+    },
+    {
+      "name": "index_progress",
+      "value": "Progress"
     },
     {
       "name": "start_workout",
@@ -57,12 +77,156 @@
       "value": "Reps"
     },
     {
+      "name": "main_status_active",
+      "value": "ACTIVE"
+    },
+    {
+      "name": "main_status_paused",
+      "value": "PAUSED"
+    },
+    {
+      "name": "main_status_ready",
+      "value": "READY"
+    },
+    {
+      "name": "main_target_reps",
+      "value": "of %d"
+    },
+    {
+      "name": "detail_complete_label",
+      "value": "complete"
+    },
+    {
+      "name": "detail_completion_percent",
+      "value": "%d%%"
+    },
+    {
+      "name": "detail_squats_summary",
+      "value": "%d / %d squats"
+    },
+    {
+      "name": "detail_restart",
+      "value": "Restart"
+    },
+    {
+      "name": "detail_stats",
+      "value": "Stats"
+    },
+    {
+      "name": "remind_tomorrow",
+      "value": "Remind Tomorrow"
+    },
+    {
+      "name": "reminder_scheduling",
+      "value": "Scheduling..."
+    },
+    {
+      "name": "reminder_set",
+      "value": "Reminder set"
+    },
+    {
+      "name": "reminder_unavailable",
+      "value": "Reminder unavailable"
+    },
+    {
+      "name": "reminder_title",
+      "value": "HIIT Squat Trainer"
+    },
+    {
+      "name": "reminder_content",
+      "value": "Time for your next squat session."
+    },
+    {
+      "name": "reminder_expired_content",
+      "value": "Workout reminder missed."
+    },
+    {
+      "name": "motivation_goal_complete",
+      "value": "Goal complete. Strong finish."
+    },
+    {
+      "name": "motivation_close",
+      "value": "Close to target. Save the pace."
+    },
+    {
+      "name": "motivation_halfway",
+      "value": "Halfway there. Good session."
+    },
+    {
+      "name": "motivation_started",
+      "value": "Good start. Build from here."
+    },
+    {
+      "name": "motivation_none",
+      "value": "No reps captured this time."
+    },
+    {
       "name": "text_motivation",
-      "value": "Workout Summary 🏁"
+      "value": "Workout Summary"
+    },
+    {
+      "name": "progress_title",
+      "value": "Progress"
+    },
+    {
+      "name": "progress_sessions",
+      "value": "Sessions"
+    },
+    {
+      "name": "progress_streak",
+      "value": "Streak"
+    },
+    {
+      "name": "progress_week",
+      "value": "Week"
+    },
+    {
+      "name": "progress_best",
+      "value": "Best"
+    },
+    {
+      "name": "progress_streak_days",
+      "value": "%dd"
+    },
+    {
+      "name": "progress_total_best",
+      "value": "total reps | best %d%%"
+    },
+    {
+      "name": "progress_no_sessions",
+      "value": "No sessions yet"
+    },
+    {
+      "name": "progress_back",
+      "value": "Back"
+    },
+    {
+      "name": "progress_rate_percent",
+      "value": "%d%%"
+    },
+    {
+      "name": "session_reps_summary",
+      "value": "%d/%d"
+    },
+    {
+      "name": "session_elapsed_seconds",
+      "value": "%ds"
+    },
+    {
+      "name": "session_date_short",
+      "value": "%d/%d"
     },
     {
       "name": "squat_trainer",
       "value": "Squat Trainer"
+    },
+    {
+      "name": "control_minus",
+      "value": "-"
+    },
+    {
+      "name": "control_plus",
+      "value": "+"
     }
   ]
 }

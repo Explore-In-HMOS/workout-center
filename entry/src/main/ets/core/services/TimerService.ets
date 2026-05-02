@@ -17,6 +17,7 @@ export class TimerService {
 
   private onTimerFinishCallback?: () => void
   private onRepsCompleteCallback?: () => void
+  private onTickCallback?: (remainingSeconds: number) => void
 
   static getInstance() {
     if (!TimerService._instance) {
@@ -48,9 +49,15 @@ export class TimerService {
     this.onRepsCompleteCallback = callback
   }
 
-  incrementRep() {
+  setOnTick(callback: (remainingSeconds: number) => void) {
+    this.onTickCallback = callback
+  }
+
+  incrementRep(): boolean {
+    let changed = false
     if (this.repCount < this.targetRepCount) {
       this.repCount++
+      changed = true
     }
 
     if (this.repCount >= this.targetRepCount) {
@@ -59,6 +66,7 @@ export class TimerService {
         this.onRepsCompleteCallback()
       }
     }
+    return changed
   }
 
   get status(): TimerStatus {
@@ -72,7 +80,12 @@ export class TimerService {
     this.intervalId = setInterval(() => {
       if (this.remainingSeconds > 0) {
         this.remainingSeconds--
-      } else {
+        if (this.onTickCallback) {
+          this.onTickCallback(this.remainingSeconds)
+        }
+      }
+
+      if (this.remainingSeconds <= 0) {
         this.stop()
         if (this.onTimerFinishCallback) {
           this.onTimerFinishCallback()
@@ -102,6 +115,7 @@ export class TimerService {
 
   stop() {
     clearInterval(this.intervalId)
+    this.intervalId = undefined
     this._status = TimerStatus.STOPPED
   }
 }

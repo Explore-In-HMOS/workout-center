@@ -3,6 +3,7 @@ import { ConstantUI } from '../util/ConstantUI'
 import { DetailPage } from './DetailPage'
 import { IndexPage } from './Index'
 import { MainPage } from './MainPage'
+import { ProgressPage } from './ProgressPage'
 
 @Entry
 @Component
@@ -23,13 +24,15 @@ export struct SplashPage {
       MainPage()
     } else if (name === 'DetailPage') {
       DetailPage()
+    } else if (name === 'ProgressPage') {
+      ProgressPage()
     }
   }
 
   build() {
     Navigation(this.navPathStack) {
       Column() {
-        LottieAnimation({ politeChickyPath: 'resources/rawfile/splash.json' })
+        LottieAnimation({ politeChickyPath: 'splash.json' })
           .width(ConstantUI.FULL_WIDTH)
           .height(ConstantUI.FULL_HEIGHT)
       }

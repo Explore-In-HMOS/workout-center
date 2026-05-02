@@ -1,20 +1,16 @@
 import { sensor } from '@kit.SensorServiceKit'
+import { SquatDetector } from '../core/motion/SquatDetector'
+import { HapticCue, HapticService } from '../core/services/HapticService'
 import { TimerService, TimerStatus } from '../core/services/TimerService'
 import { ConstantUI } from '../util/ConstantUI'
-
-interface AccelerometerSample {
-  x: number;
-  y: number;
-  z: number;
-}
 
 @Component
 export struct MainPage {
   @State status: TimerStatus = TimerStatus.STOPPED
   private timerService = TimerService.getInstance()
-  private isDown: boolean = false
-  private lastZ: number = 0
-  private lastTimestamp: number = Date.now()
+  private detector: SquatDetector = new SquatDetector()
+  private haptics: HapticService = HapticService.getInstance()
+  private lastCountdownPulse: number = -1
   navPathStack: NavPathStack = new NavPathStack()
 
   aboutToDisappear() {
@@ -28,59 +24,75 @@ export struct MainPage {
         min: 0,
         max: this.timerService.totalSeconds
       }) {
-        Column({ space: ConstantUI.SIZE_10 }) {
-          Row() {
-            Text(this.formatTime(this.timerService.remainingSeconds))
-              .fontSize($r('app.float.timer_font_size'))
-              .fontWeight(FontWeight.Bold)
-          }
-          .justifyContent(FlexAlign.Center)
+        Column({ space: ConstantUI.SIZE_8 }) {
+          Text(this.statusText())
+            .fontSize(ConstantUI.SIZE_12)
+            .fontWeight(FontWeight.Medium)
+            .fontColor(
+              this.status === TimerStatus.RUNNING ? ConstantUI.WATCH_TEAL : ConstantUI.WATCH_MUTED
+            )
 
-          Text(`Reps: ${this.timerService.repCount} / ${this.timerService.targetRepCount}`)
-            .fontSize(ConstantUI.SIZE_22)
+          Text(this.formatTime(this.timerService.remainingSeconds))
+            .fontSize(ConstantUI.SIZE_40)
             .fontWeight(FontWeight.Bold)
-            .margin({ top: ConstantUI.SIZE_10 })
+            .fontColor(ConstantUI.WATCH_TEXT)
 
-          Row({ space: ConstantUI.SIZE_10 }) {
-            Button(this.status === TimerStatus.RUNNING ?
-            $r('app.string.main_pause') : $r('app.string.main_start'))
-              .fontSize($r('app.float.button_font_size'))
-              .width(ConstantUI.BUTTON_WIDTH_HALF)
+          Column({ space: ConstantUI.SIZE_2 }) {
+            Text(`${this.timerService.repCount}`)
+              .fontSize(ConstantUI.SIZE_36)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(ConstantUI.WATCH_ORANGE)
+            Text($r('app.string.main_target_reps', this.timerService.targetRepCount))
+              .fontSize(ConstantUI.SIZE_12)
+              .fontColor(ConstantUI.WATCH_MUTED)
+          }
+
+          Row({ space: ConstantUI.SIZE_6 }) {
+            Button(
+              this.status === TimerStatus.RUNNING ? $r('app.string.main_pause') : $r('app.string.main_start')
+            )
+              .fontSize(ConstantUI.SIZE_12)
+              .fontWeight(FontWeight.Bold)
+              .width(ConstantUI.SIZE_72)
+              .height(ConstantUI.SIZE_36)
+              .borderRadius(ConstantUI.SIZE_18)
+              .backgroundColor(
+                this.status === TimerStatus.RUNNING ? ConstantUI.WATCH_PANEL_ALT : ConstantUI.WATCH_TEAL
+              )
+              .fontColor(ConstantUI.TEXT_WHITE)
               .onClick(() => {
                 if (this.status === TimerStatus.RUNNING) {
                   this.timerService.pause()
                   this.status = TimerStatus.PAUSED
                   this.stopSensor()
+                  this.haptics.pulse(HapticCue.PAUSE)
                 } else {
-                  this.timerService.setOnTimerFinish(() => {
-                    this.status = TimerStatus.STOPPED
-                    this.stopSensor()
-                    this.navPathStack.pushPath({ name: 'DetailPage' })
-                  })
-
-                  this.timerService.setOnRepsComplete(() => {
-                    this.status = TimerStatus.STOPPED
-                    this.stopSensor()
-                    this.navPathStack.pushPath({ name: 'DetailPage' })
-                  })
-
+                  this.prepareWorkoutCallbacks()
                   this.timerService.start()
                   this.status = TimerStatus.RUNNING
+                  this.haptics.pulse(HapticCue.START)
                   this.startSensor()
                 }
               })
 
             Button($r('app.string.main_reset'))
-              .fontSize($r('app.float.button_font_size'))
-              .width(ConstantUI.BUTTON_WIDTH_HALF)
+              .fontSize(ConstantUI.SIZE_10)
+              .fontWeight(FontWeight.Medium)
+              .width(ConstantUI.SIZE_58)
+              .height(ConstantUI.SIZE_36)
+              .borderRadius(ConstantUI.SIZE_18)
+              .backgroundColor(ConstantUI.WATCH_PANEL_ALT)
+              .fontColor(ConstantUI.WATCH_TEXT)
               .onClick(() => {
                 this.timerService.reset()
                 this.status = TimerStatus.STOPPED
                 this.stopSensor()
+                this.detector.reset()
+                this.haptics.pulse(HapticCue.RESET)
               })
           }
         }
-        .padding(ConstantUI.SIZE_20)
+        .padding(ConstantUI.SIZE_16)
         .width(ConstantUI.FULL_WIDTH)
         .height(ConstantUI.FULL_HEIGHT)
         .justifyContent(FlexAlign.Center)
@@ -88,17 +100,17 @@ export struct MainPage {
         .linearGradient({
           direction: GradientDirection.Bottom,
           colors: [
-            [$r('app.color.base_background_gradient_start'), 0.0],
-            [$r('app.color.base_background_gradient_end'), 1.0]
+            [ConstantUI.WATCH_BG_TOP, 0.0],
+            [ConstantUI.WATCH_BG_BOTTOM, 1.0]
           ]
         })
       }
-      .colors($r('app.color.gauge'))
+      .colors(ConstantUI.WATCH_TEAL)
       .width(ConstantUI.FULL_WIDTH)
       .height(ConstantUI.FULL_HEIGHT)
       .indicator(null)
-      .strokeWidth(ConstantUI.SIZE_10)
-      .trackShadow({ radius: 3, offsetX: 3, offsetY: 3 })
+      .strokeWidth(ConstantUI.SIZE_12)
+      .trackShadow({ radius: 1, offsetX: 0, offsetY: 0 })
     }
     .hideTitleBar(true)
     .onReady((ctx: NavDestinationContext) => {
@@ -106,29 +118,53 @@ export struct MainPage {
     })
   }
 
+  private prepareWorkoutCallbacks(): void {
+    this.lastCountdownPulse = -1
+    this.timerService.setOnTimerFinish(() => {
+      this.status = TimerStatus.STOPPED
+      this.stopSensor()
+      this.haptics.pulse(HapticCue.COMPLETE)
+      this.navPathStack.pushPath({ name: 'DetailPage' })
+    })
+
+    this.timerService.setOnRepsComplete(() => {
+      this.status = TimerStatus.STOPPED
+      this.stopSensor()
+      this.haptics.pulse(HapticCue.COMPLETE)
+      this.navPathStack.pushPath({ name: 'DetailPage' })
+    })
+
+    this.timerService.setOnTick((remainingSeconds: number) => {
+      if (
+        remainingSeconds > 0 &&
+        remainingSeconds <= 5 &&
+        remainingSeconds !== this.lastCountdownPulse
+      ) {
+        this.lastCountdownPulse = remainingSeconds
+        this.haptics.pulse(HapticCue.MILESTONE)
+      }
+    })
+  }
+
   startSensor() {
     try {
-      sensor.on(sensor.SensorId.ACCELEROMETER, (data: AccelerometerSample) => {
+      this.detector.reset()
+      sensor.on(sensor.SensorId.ACCELEROMETER, (data) => {
         const now = Date.now()
-        const deltaTime = now - this.lastTimestamp
-        if (deltaTime < 600) {
-          return
-        }
-
-        const deltaZ = data.z - this.lastZ
-        const threshold = 2.5
-
-        if (this.timerService.status === TimerStatus.RUNNING) {
-          if (deltaZ < -threshold && !this.isDown) {
-            this.isDown = true
-          } else if (deltaZ > threshold && this.isDown) {
-            this.timerService.incrementRep()
-            this.isDown = false
+        if (this.timerService.status === TimerStatus.RUNNING && this.detector.accept(data.z, now)) {
+          const changed = this.timerService.incrementRep()
+          if (changed) {
+            const halfway = Math.ceil(this.timerService.targetRepCount / 2)
+            if (
+              this.timerService.repCount === halfway ||
+              this.timerService.repCount === this.timerService.targetRepCount
+            ) {
+              this.haptics.pulse(HapticCue.MILESTONE)
+            } else {
+              this.haptics.pulse(HapticCue.REP)
+            }
           }
         }
-
-        this.lastZ = data.z
-        this.lastTimestamp = now
       })
     } catch (err) {
       console.error('[SENSOR ERROR]', JSON.stringify(err))
@@ -141,6 +177,16 @@ export struct MainPage {
     } catch (err) {
       console.error('[SENSOR OFF ERROR]', JSON.stringify(err))
     }
+  }
+
+  private statusText() {
+    if (this.status === TimerStatus.RUNNING) {
+      return $r('app.string.main_status_active')
+    }
+    if (this.status === TimerStatus.PAUSED) {
+      return $r('app.string.main_status_paused')
+    }
+    return $r('app.string.main_status_ready')
   }
 
   formatTime(seconds: number): string {

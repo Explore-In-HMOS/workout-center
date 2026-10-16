@@ -1,3 +1,5 @@
+> **Note:** To access all shared projects, get information about environment setup, and view other guides, please visit [Explore-In-HMOS Index](https://github.com/Explore-In-HMOS/hmos-index).
+
 # HIIT Squat Trainer
 
 workout-center is a HarmonyOS-based wearable app that guides users through high-intensity interval training focused on squats. It uses the device accelerometer to detect squat repetitions in real time and manages sessions based on user-defined duration and squat goals.
